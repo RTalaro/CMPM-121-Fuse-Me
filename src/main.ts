@@ -1,11 +1,10 @@
 import leaflet from "leaflet";
-
 import "leaflet/dist/leaflet.css";
+import "./_leafletWorkaround.ts";
+import luck from "./_luck.ts";
 import "./style.css";
 
-import "./_leafletWorkaround.ts";
-
-import luck from "./_luck.ts";
+import faceImg from "./face.png";
 
 const mapDiv = document.createElement("div");
 mapDiv.id = "map";
@@ -22,7 +21,7 @@ const origin = leaflet.latLng(
 
 const MAX_ZOOM = 19;
 const CELL_SIZE = 1e-4;
-const SPAWN_AREA = 100;
+const SPAWN_AREA = 50;
 const PLAYER_REACH = 0.0003;
 const CACHE_SPAWN_PROBABILITY = 0.1;
 
@@ -46,37 +45,118 @@ leaflet
   .addTo(map);
 
 // token data
+const itemList: string[] = [
+  "letter",
+  "word",
+  "clause",
+  "sentence",
+  "paragraph",
+  "paper",
+  "novel",
+  "series",
+];
+const emojiList: string[] = [
+  "O",
+  "DO",
+  "DO YOU",
+  "YOU DON'T READ, DO YOU?",
+  "¶",
+  "📄",
+  "📕",
+  "📚",
+];
+interface cellItem {
+  name: string;
+  rank: number;
+  location: [i: number, j: number] | null;
+}
 
 // player data
 const playerPos: leaflet.LatLng = origin;
-const playerMarker = leaflet.marker(playerPos);
+const playerIcon = leaflet.icon({
+  iconUrl: faceImg,
+  iconSize: [78.3, 49.2],
+});
+const playerMarker = leaflet.marker(playerPos, { icon: playerIcon });
 playerMarker.addTo(map);
-
-const playerItem = null;
+let playerItem: cellItem | null = null;
 if (playerItem == null) textDiv.innerHTML = "Empty hand :(";
 
 function spawn(i: number, j: number) {
-  const bounds = leaflet.latLngBounds([
-    [origin.lat + i * CELL_SIZE, origin.lng + j * CELL_SIZE],
-    [origin.lat + (i + 1) * CELL_SIZE, origin.lng + (j + 1) * CELL_SIZE],
-  ]);
+  // should be 9, but starting with 2 for easy win
+  const value = Math.floor(luck([i, j, "initialValue"].toString()) * 5);
+  const item: cellItem = {
+    name: itemList[value],
+    rank: value,
+    location: [i, j],
+  };
 
   let opacity: number = 1.0;
+  let interactive: boolean = true;
   const distLat = playerPos.lat - (origin.lat + i * CELL_SIZE);
   const distLng = playerPos.lng - (origin.lng + j * CELL_SIZE);
   if (
     (distLat > 0 && distLat > PLAYER_REACH) ||
     (distLat < 0 && distLat < -PLAYER_REACH)
-  ) opacity = .5;
-  else if (
+  ) {
+    opacity = .5;
+    interactive = false;
+  } else if (
     (distLng > 0 && distLng > PLAYER_REACH) ||
     (distLng < 0 && distLng < -PLAYER_REACH)
-  ) opacity = .5;
-  leaflet.circle([origin.lat + i * CELL_SIZE, origin.lng + j * CELL_SIZE], {
+  ) {
+    opacity = .5;
+    interactive = false;
+  }
+
+  const cell = leaflet.circle([
+    origin.lat + i * CELL_SIZE,
+    origin.lng + j * CELL_SIZE,
+  ], {
     radius: 5,
     opacity: opacity,
+    weight: 2.5,
+    color: "#2a5596ff",
+    interactive: interactive,
   }).addTo(map);
-  leaflet.rectangle(bounds, { opacity: opacity }).addTo(map);
+  cell.bindTooltip(emojiList[value], { direction: "top" });
+
+  cell.addEventListener("click", () => {
+    // pick up
+    if (playerItem == null) {
+      playerItem = {
+        name: item.name,
+        rank: item.rank,
+        location: item.location,
+      };
+      item.rank = -1;
+      cell.getTooltip()!.setOpacity(0);
+    } // place down
+    else if (item.rank == -1 && playerItem != null) {
+      item.name = playerItem.name;
+      item.rank = playerItem.rank;
+      item.location = playerItem.location;
+      cell.getTooltip()!.setOpacity(0.9);
+      cell.getTooltip()!.setContent(emojiList[item.rank]);
+      playerItem = null;
+    } // craft
+    else if (playerItem.rank == value) {
+      cell.getTooltip()!.setOpacity(0);
+      playerItem.name = itemList[value + 1];
+      playerItem.rank = value + 1;
+      item.rank = -1;
+      textDiv.innerHTML = "You win!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+      return;
+    }
+    // update text
+    if (playerItem != null) {
+      textDiv.innerHTML = `Holding ${playerItem.name} ${
+        emojiList[playerItem.rank]
+      }`;
+    } else {
+      textDiv.innerHTML = "Empty hands :(";
+    }
+  });
 }
 
 // spawn caches

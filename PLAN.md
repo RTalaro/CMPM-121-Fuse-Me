@@ -3,6 +3,7 @@
 ## Game Design Vision
 
 In this game, the player will gather literary components in the pursuit of developing a collection of works.
+Collect components by clicking on nearby cells. Craft by clicking a cell of the same type as the equipped component.
 
 ## Technologies
 
@@ -24,9 +25,9 @@ Key gameplay challenge: Can players collect and craft tokens from nearby locatio
 - [x] display player location
 - [x] use loops to display cell grid
 - [x] fade cells that are out of reach
-- [ ] spawn a letter
-- [ ] let player collect letter
-- [ ] let player place letters in cells
-- [ ] spawn a word
-- [ ] implement combination of letters to create word
-- [ ] implement win state upon making a word
+- [x] spawn a letter
+- [x] let player collect letter
+- [x] let player place letters in cells
+- [x] spawn a word
+- [x] implement combination of letters to create word
+- [x] implement win state upon making a word
