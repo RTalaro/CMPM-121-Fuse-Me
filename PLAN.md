@@ -13,21 +13,57 @@ Collect components by clicking on nearby cells. Craft by clicking a cell of the 
 
 ## Assignments
 
-### D3.a: Core mechanics (token collection and crafting)
+### D3.a Core Mechanics
 
-Key technical challenge: Can you assemble a map-based user interface using the Leaflet mapping framework?
-Key gameplay challenge: Can players collect and craft tokens from nearby locations to finally make one of sufficiently high value?
+- **Map**
+  - Cells are visible to the edge of the screen
+  - Player can only interact with nearby cells
+  - Initial state of cells consistent across page loads
+- **Inventory**
+  - Player can only hold one item at a time
+  - Picking up an item removes it from its cell
+  - Display a held item's value, or show that hand is empty
+- **Crafting**
+  - Player can craft a new item by placing duplicate items together
+  - Detect whether the player has the appropriate item in hand for crafting
 
-#### Steps
+#### D3.a Steps
 
 - [x] clear main.ts
 - [x] render map with leaflet
 - [x] display player location
 - [x] use loops to display cell grid
 - [x] fade cells that are out of reach
-- [x] spawn a letter
+- [x] spawn and display a letter
 - [x] let player collect letter
-- [x] let player place letters in cells
+- [x] let player place a letter in an empty cell
 - [x] spawn a word
 - [x] implement combination of letters to create word
 - [x] implement win state upon making a word
+
+### D4.b Globe-spanning Gameplay
+
+- **Map**
+  - Anchor map at Null Island (0, 0)
+  - Player can move around map and see cells as they go
+  - Cells spawn/despawn as they move on/off the screen (allow for farming)
+- **Crafting**
+  - Progress crafting system to make multiple items of higher value
+  - Require highest threshold of crafting to reach win state
+
+#### D4.b Steps
+
+- [ ] simulate player movement by clicking
+- [ ] kill cells that are out of view
+- [ ] regenerate cells as they come into view
+- [ ] display cell coordinates relative to Null Island
+- [ ] implement win state upon crafting highest ranked item
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]

@@ -83,8 +83,7 @@ let playerItem: cellItem | null = null;
 if (playerItem == null) textDiv.innerHTML = "Empty hand :(";
 
 function spawn(i: number, j: number) {
-  // should be 9, but starting with 2 for easy win
-  const value = Math.floor(luck([i, j, "initialValue"].toString()) * 5);
+  const value = Math.floor(luck([i, j, "initialValue"].toString()) * 8);
   const item: cellItem = {
     name: itemList[value],
     rank: value,
@@ -162,7 +161,6 @@ function spawn(i: number, j: number) {
 // spawn caches
 for (let i = -SPAWN_AREA; i < SPAWN_AREA; i++) {
   for (let j = -SPAWN_AREA; j < SPAWN_AREA; j++) {
-    // If location i,j is lucky enough, spawn a cache!
     if (luck([i, j].toString()) < CACHE_SPAWN_PROBABILITY) {
       spawn(i, j);
     }
