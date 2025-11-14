@@ -133,42 +133,7 @@ function spawn(i: number, j: number) {
     label: allItems[value].label,
     rank: value,
   };
-
-  let opacity: number = 1.0;
-  let interactive: boolean = true;
-  const distLat = playerPos.lat - (origin.lat + i * CELL_SIZE);
-  const distLng = playerPos.lng - (origin.lng + j * CELL_SIZE);
-  if (isFar(distLat) || isFar(distLng)) {
-    opacity = .5;
-    interactive = false;
-  }
-
-  const marker = leaflet.circle([
-    origin.lat + i * CELL_SIZE,
-    origin.lng + j * CELL_SIZE,
-  ], {
-    radius: 5,
-    opacity: opacity,
-    weight: 2.5,
-    color: "#2a5596ff",
-    interactive: interactive,
-  }).addTo(map);
-
-  marker.bindTooltip(allItems[item.rank].label, { direction: "top" });
-
-  const cell: Cell = {
-    item: item,
-    location: [i, j],
-    marker: marker,
-    tooltip: marker.getTooltip()!,
-  };
-
-  marker.addEventListener("click", () => {
-    if (playerItem == null) actions.pickUp(cell);
-    else if (cell.item == null) actions.placeDown(cell);
-    else if (playerItem.rank == cell.item.rank) actions.craft(cell);
-    updateText();
-  });
+  return item;
 }
 
 function isFar(degree: number) {
@@ -189,11 +154,46 @@ function updateText() {
   } else textDiv.innerHTML = "Empty hands :(";
 }
 
-// spawn caches
+// spawn and display cells
 for (let i = -SPAWN_AREA; i < SPAWN_AREA; i++) {
   for (let j = -SPAWN_AREA; j < SPAWN_AREA; j++) {
     if (luck([i, j].toString()) < CACHE_SPAWN_PROBABILITY) {
-      spawn(i, j);
+      const item = spawn(i, j);
+      let opacity: number = 1.0;
+      let interactive: boolean = true;
+      const distLat = playerPos.lat - (origin.lat + i * CELL_SIZE);
+      const distLng = playerPos.lng - (origin.lng + j * CELL_SIZE);
+      if (isFar(distLat) || isFar(distLng)) {
+        opacity = .5;
+        interactive = false;
+      }
+
+      const marker = leaflet.circle([
+        origin.lat + i * CELL_SIZE,
+        origin.lng + j * CELL_SIZE,
+      ], {
+        radius: 5,
+        opacity: opacity,
+        weight: 2.5,
+        color: "#2a5596ff",
+        interactive: interactive,
+      }).addTo(map);
+
+      marker.bindTooltip(allItems[item.rank].label, { direction: "top" });
+
+      const cell: Cell = {
+        item: item,
+        location: [i, j],
+        marker: marker,
+        tooltip: marker.getTooltip()!,
+      };
+
+      marker.addEventListener("click", () => {
+        if (playerItem == null) actions.pickUp(cell);
+        else if (cell.item == null) actions.placeDown(cell);
+        else if (playerItem.rank == cell.item.rank) actions.craft(cell);
+        updateText();
+      });
     }
   }
 }
